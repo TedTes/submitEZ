@@ -1,0 +1,83 @@
+# SubmitEZ Root Gitignore
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary Files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Backups
+*.bak
+*.backup
+*~
+
+# Application Specific
+uploads/
+downloads/
+generated/
+*.pdf
+*.xlsx
+*.xls
+*.docx
+*.doc
+
+# Secrets
+secrets/
+*.pem
+*.key
+*.cert
+
+# Documentation Build
+_site/
+.jekyll-cache/
+
+# Coverage Reports
+coverage/
+.nyc_output/
+
+# Mac
+.AppleDouble
+.LSOverride
+
+# Windows
+[Tt]humbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*

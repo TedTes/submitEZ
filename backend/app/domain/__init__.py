@@ -4,10 +4,11 @@ Domain layer package for SubmitEZ.
 Contains business entities and domain logic.
 """
 
-from .models import Applicant, PropertyLocation, Coverage
+from .models import Applicant, PropertyLocation, Coverage, LossHistory
 
 __all__ = [
     'Applicant',
     'PropertyLocation',
-    'Coverage'
+    'Coverage',
+    'LossHistory'
 ]

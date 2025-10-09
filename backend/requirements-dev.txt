@@ -1,0 +1,168 @@
+# SubmitEZ Development Dependencies
+# Includes all production dependencies plus dev tools
+
+# ============================================================================
+# Include Production Dependencies
+# ============================================================================
+-r requirements.txt
+
+# ============================================================================
+# Testing Frameworks
+# ============================================================================
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-asyncio==0.21.1
+pytest-xdist==3.5.0  # Parallel test execution
+
+# Fixtures and test data
+faker==21.0.0
+factory-boy==3.3.0
+
+# HTTP testing
+responses==0.24.1
+pytest-httpserver==1.0.8
+
+# ============================================================================
+# Code Quality & Linting
+# ============================================================================
+# Linting
+flake8==7.0.0
+pylint==3.0.3
+pycodestyle==2.11.1
+pyflakes==3.1.0
+
+# Code formatting
+black==23.12.1
+autopep8==2.0.4
+
+# Import sorting
+isort==5.13.2
+
+# Security linting
+bandit==1.7.5
+safety==2.3.5
+
+# Complexity checking
+mccabe==0.7.0
+radon==6.0.1
+
+# ============================================================================
+# Type Checking
+# ============================================================================
+mypy==1.7.1
+types-requests==2.31.0.10
+types-python-dateutil==2.8.19.14
+types-pytz==2023.3.1.1
+
+# ============================================================================
+# Documentation
+# ============================================================================
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+sphinx-autodoc-typehints==1.25.2
+
+# API documentation
+flasgger==0.9.7.1  # Swagger/OpenAPI
+
+# ============================================================================
+# Debugging & Profiling
+# ============================================================================
+# Interactive debugger
+ipdb==0.13.13
+pdbpp==0.10.3
+
+# Interactive Python
+ipython==8.19.0
+
+# Profiling
+py-spy==0.3.14
+memory-profiler==0.61.0
+line-profiler==4.1.1
+
+# ============================================================================
+# Development Tools
+# ============================================================================
+# Auto-reload
+watchdog==3.0.0
+
+# Environment management
+python-dotenv==1.0.0
+
+# Shell enhancement
+ptpython==3.0.25
+
+# ============================================================================
+# Database Tools
+# ============================================================================
+# Database migrations (if needed)
+alembic==1.13.1
+
+# Database inspection
+sqlalchemy-utils==0.41.1
+
+# ============================================================================
+# API Testing
+# ============================================================================
+# HTTP client for testing
+httpie==3.2.2
+
+# Mock server
+werkzeug==3.0.1
+
+# ============================================================================
+# Code Coverage & Reporting
+# ============================================================================
+coverage==7.3.4
+coverage-badge==1.1.0
+
+# ============================================================================
+# Pre-commit Hooks
+# ============================================================================
+pre-commit==3.6.0
+
+# ============================================================================
+# Dependency Management
+# ============================================================================
+pip-tools==7.3.0
+pipdeptree==2.13.1
+
+# ============================================================================
+# Performance Testing
+# ============================================================================
+locust==2.20.0  # Load testing
+
+# ============================================================================
+# Notebook Support (Optional)
+# ============================================================================
+# jupyter==1.0.0
+# jupyterlab==4.0.9
+
+# ============================================================================
+# Mock & Stub Tools
+# ============================================================================
+freezegun==1.4.0  # Mock datetime
+vcrpy==5.1.0      # Record HTTP interactions
+
+# ============================================================================
+# Development Utilities
+# ============================================================================
+# Better error pages
+flask-debugtoolbar==0.14.1
+
+# Request logging
+flask-request-id==0.1.1
+
+# ============================================================================
+# Installation Notes
+# ============================================================================
+# Install with: pip install -r requirements-dev.txt
+# 
+# Recommended workflow:
+# 1. Create virtual environment: python -m venv venv
+# 2. Activate: source venv/bin/activate
+# 3. Install: pip install -r requirements-dev.txt
+# 4. Setup pre-commit: pre-commit install
+#
+# Update all packages: pip install --upgrade -r requirements-dev.txt

@@ -13,7 +13,22 @@ from .submission_schema import (
     SubmissionSummarySchema
 )
 
+from .extraction_schema import (
+    ExtractionStatus,
+    ConfidenceLevel,
+    ExtractedFieldSchema,
+    ExtractedApplicantSchema,
+    ExtractedPropertyLocationSchema,
+    ExtractedCoverageSchema,
+    ExtractedLossHistorySchema,
+    DocumentExtractionSchema,
+    ExtractionResultSchema,
+    ExtractionRequestSchema,
+    ExtractionSummarySchema
+)
+
 __all__ = [
+    # Submission schemas
     'ApplicantSchema',
     'PropertyLocationSchema',
     'CoverageSchema',
@@ -21,5 +36,18 @@ __all__ = [
     'SubmissionCreateSchema',
     'SubmissionUpdateSchema',
     'SubmissionResponseSchema',
-    'SubmissionSummarySchema'
+    'SubmissionSummarySchema',
+    
+    # Extraction schemas
+    'ExtractionStatus',
+    'ConfidenceLevel',
+    'ExtractedFieldSchema',
+    'ExtractedApplicantSchema',
+    'ExtractedPropertyLocationSchema',
+    'ExtractedCoverageSchema',
+    'ExtractedLossHistorySchema',
+    'DocumentExtractionSchema',
+    'ExtractionResultSchema',
+    'ExtractionRequestSchema',
+    'ExtractionSummarySchema'
 ]

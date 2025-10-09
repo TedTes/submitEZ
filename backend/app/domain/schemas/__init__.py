@@ -27,6 +27,20 @@ from .extraction_schema import (
     ExtractionSummarySchema
 )
 
+from .validation_schema import (
+    ValidationSeverity,
+    ValidationCategory,
+    ValidationIssueSchema,
+    FieldValidationSchema,
+    EntityValidationSchema,
+    ValidationResultSchema,
+    ValidationRequestSchema,
+    ValidationSummarySchema,
+    BusinessRuleSchema,
+    AutoFixSuggestionSchema,
+    ValidationComparisonSchema
+)
+
 __all__ = [
     # Submission schemas
     'ApplicantSchema',
@@ -49,5 +63,18 @@ __all__ = [
     'DocumentExtractionSchema',
     'ExtractionResultSchema',
     'ExtractionRequestSchema',
-    'ExtractionSummarySchema'
+    'ExtractionSummarySchema',
+    
+    # Validation schemas
+    'ValidationSeverity',
+    'ValidationCategory',
+    'ValidationIssueSchema',
+    'FieldValidationSchema',
+    'EntityValidationSchema',
+    'ValidationResultSchema',
+    'ValidationRequestSchema',
+    'ValidationSummarySchema',
+    'BusinessRuleSchema',
+    'AutoFixSuggestionSchema',
+    'ValidationComparisonSchema'
 ]

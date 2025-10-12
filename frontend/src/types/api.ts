@@ -78,14 +78,14 @@ export interface ValidationResponse {
   blocking_errors: number
   errors: Array<{
     field_path: string
-    severity: string
+    severity: 'error' | 'warning' | 'info'
     category: string
     message: string
     blocking?: boolean
   }>
   warnings: Array<{
     field_path: string
-    severity: string
+    severity: 'error' | 'warning' | 'info'
     category: string
     message: string
   }>

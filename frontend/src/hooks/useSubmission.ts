@@ -6,6 +6,7 @@ import submissionAPI from '@/lib/api/submission-api'
 import type {
   Submission,
   SubmissionStatus,
+  SubmissionSummary,
   SubmissionCreateRequest,
 } from '@/types/submission'
 import type {
@@ -44,7 +45,7 @@ interface SubmissionState {
   error: string | null
 
   // Recent submissions
-  recentSubmissions: Submission[]
+  recentSubmissions: SubmissionSummary[]
 }
 
 /**
@@ -386,8 +387,22 @@ export const useSubmission = create<SubmissionStore>()(
       // Add to recent submissions
       addToRecentSubmissions: (submission) => {
         const recentSubmissions = get().recentSubmissions
+        const summary: SubmissionSummary = {
+            id: submission.id,
+            status: submission.status,
+            applicant_name: submission.applicant?.business_name,
+            total_locations: submission.locations?.length || 0,
+            total_losses: submission.loss_history?.length || 0,
+            total_tiv: submission.locations?.reduce((sum, loc) => sum + (loc.total_insured_value || 0), 0) || 0,
+            completeness: 0, // Can be calculated from validation result if available
+            is_valid: submission.is_valid || false,
+            validation_errors_count: submission.validation_errors?.length || 0,
+            validation_warnings_count: submission.validation_warnings?.length || 0,
+            created_at: submission.created_at,
+            updated_at: submission.updated_at,
+          }
         const filtered = recentSubmissions.filter((s) => s.id !== submission.id)
-        const updated = [submission, ...filtered].slice(0, 10)
+        const updated = [summary, ...filtered].slice(0, 10)
         set({ recentSubmissions: updated })
       },
 

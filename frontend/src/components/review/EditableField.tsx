@@ -46,7 +46,7 @@ export function EditableField({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && type !== 'textarea') {
-      e.currentTarget.blur()
+      (e.currentTarget as  HTMLElement).blur()
     }
   }
 

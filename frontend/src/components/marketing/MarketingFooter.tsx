@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { APP_CONFIG } from '@/lib/constants'
 
-export function Footer() {
+export function MarketingFooter() {
   const currentYear = new Date().getFullYear()
 
   return (
@@ -27,26 +27,26 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="/upload"
+                  href="/#how-it-works"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Upload Documents
+                  How It Works
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/submissions"
+                  href="/#benefits"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  View Submissions
+                  Benefits
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/#features"
+                  href="/dashboard"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Features
+                  Launch App
                 </Link>
               </li>
               <li>
@@ -90,10 +90,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/status"
+                  href="/blog"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  System Status
+                  Blog
                 </Link>
               </li>
             </ul>

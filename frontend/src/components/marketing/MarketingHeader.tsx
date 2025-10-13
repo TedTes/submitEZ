@@ -6,18 +6,18 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Upload', href: '/upload' },
-  { name: 'Submissions', href: '/submissions' },
+  { name: 'Features', href: '/#how-it-works' },
+  { name: 'Benefits', href: '/#benefits' },
+  { name: 'Pricing', href: '/#pricing' },
 ]
 
-export function Header() {
+export function MarketingHeader() {
   const pathname = usePathname()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
-        {/* Logo */}
+        {/* Logo - Links to landing page */}
         <Link href="/" className="flex items-center space-x-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xl">
             S
@@ -27,7 +27,7 @@ export function Header() {
           </span>
         </Link>
 
-        {/* Navigation */}
+        {/* Marketing Navigation */}
         <nav className="flex items-center space-x-6 ml-8">
           {navigation.map((item) => (
             <Link
@@ -47,8 +47,13 @@ export function Header() {
 
         {/* Actions */}
         <div className="ml-auto flex items-center space-x-4">
-          <Link href="/upload">
-            <Button>New Submission</Button>
+          {/* Sign In link - future */}
+          {/* <Link href="/signin">
+            <Button variant="ghost">Sign In</Button>
+          </Link> */}
+          
+          <Link href="/dashboard">
+            <Button>Launch App</Button>
           </Link>
         </div>
       </div>

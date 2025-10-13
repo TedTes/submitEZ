@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-export default function HomePage() {
+export default function LandingPage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -24,14 +24,14 @@ export default function HomePage() {
             Save 80% of data entry time with AI-powered extraction.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/upload">
+            <Link href="/dashboard">
               <Button size="lg" className="text-lg px-8 py-6">
-                Start New Submission
+                Launch App
               </Button>
             </Link>
-            <Link href="/submissions">
+            <Link href="#how-it-works">
               <Button size="lg" variant="outline" className="text-lg px-8 py-6">
-                View Submissions
+                Learn More
               </Button>
             </Link>
           </div>
@@ -39,7 +39,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
             How It Works
@@ -149,7 +149,7 @@ export default function HomePage() {
             Join insurance brokers who are saving hours every week with
             SubmitEZ.
           </p>
-          <Link href="/upload">
+          <Link href="/dashboard">
             <Button size="lg" className="text-lg px-8 py-6">
               Get Started Now
             </Button>

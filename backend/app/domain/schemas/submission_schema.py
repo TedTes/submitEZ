@@ -226,7 +226,7 @@ class LossHistorySchema(BaseModel):
 
 class SubmissionCreateSchema(BaseModel):
     """Schema for creating a new submission."""
-    
+    client_name: Optional[str] = Field(None, max_length=200, description="Client/project name")
     broker_name: Optional[str] = Field(None, max_length=200)
     broker_email: Optional[str] = Field(None, max_length=255)
     carrier_name: Optional[str] = Field(None, max_length=200)
@@ -239,7 +239,7 @@ class SubmissionCreateSchema(BaseModel):
 
 class SubmissionUpdateSchema(BaseModel):
     """Schema for updating a submission."""
-    
+    client_name: Optional[str] = Field(None, max_length=200)
     status: Optional[str] = Field(None, max_length=50)
     applicant: Optional[ApplicantSchema] = None
     locations: Optional[List[PropertyLocationSchema]] = None
@@ -261,6 +261,7 @@ class SubmissionResponseSchema(BaseModel):
     
     id: str
     status: str
+    client_name: Optional[str] = None
     applicant: Optional[ApplicantSchema] = None
     locations: List[PropertyLocationSchema] = Field(default_factory=list)
     coverage: Optional[CoverageSchema] = None
@@ -300,6 +301,7 @@ class SubmissionSummarySchema(BaseModel):
     """Schema for submission list/summary responses."""
     
     id: str
+    client_name: Optional[str] = None
     status: str
     applicant_name: Optional[str] = None
     total_locations: int = 0

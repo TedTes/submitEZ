@@ -82,6 +82,7 @@ class Submission:
     
     # Additional Information
     broker_name: Optional[str] = None
+    client_name: Optional[str] = None
     broker_email: Optional[str] = None
     carrier_name: Optional[str] = None
     effective_date_requested: Optional[str] = None

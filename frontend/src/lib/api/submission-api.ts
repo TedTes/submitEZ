@@ -102,7 +102,7 @@ class SubmissionAPI {
       API_ENDPOINTS.SUBMISSION_BY_ID(submissionId)
     )
 
-    return response.data.data!
+    return response.data as any
   }
 
   /**

@@ -217,6 +217,7 @@ export interface Applicant {
   
   export interface Submission {
     id: string
+    client_name?: string
     status: SubmissionStatus
     applicant?: Applicant
     locations: PropertyLocation[]
@@ -246,6 +247,7 @@ export interface Applicant {
   
   export interface SubmissionSummary {
     id: string
+    client_name?: string
     status: SubmissionStatus
     applicant_name?: string
     total_locations: number
@@ -260,6 +262,7 @@ export interface Applicant {
   }
   
   export interface SubmissionCreateRequest {
+    client_name?: string
     broker_name?: string
     broker_email?: string
     carrier_name?: string
@@ -267,6 +270,7 @@ export interface Applicant {
   }
   
   export interface SubmissionUpdateRequest {
+    client_name?: string
     applicant?: Partial<Applicant>
     locations?: PropertyLocation[]
     coverage?: Partial<Coverage>

@@ -383,3 +383,79 @@ export const ROUTES = {
   submissions: '/submissions',
   submission: (id: string) => `/submissions/${id}`,
 } as const
+
+
+/**
+ * Project status mapping (user-friendly labels)
+ * Maps submission status to project-centric terminology
+ */
+export const PROJECT_STATUS: Record<
+  SubmissionStatus,
+  { label: string; variant: 'default' | 'secondary' | 'success' | 'warning' | 'destructive' }
+> = {
+  draft: { label: 'Draft', variant: 'secondary' },
+  uploaded: { label: 'Processing', variant: 'default' },
+  extracting: { label: 'Extracting', variant: 'default' },
+  extracted: { label: 'Review Needed', variant: 'warning' },
+  validating: { label: 'Validating', variant: 'default' },
+  validated: { label: 'Ready', variant: 'success' },
+  generating: { label: 'Generating', variant: 'default' },
+  completed: { label: 'Completed', variant: 'success' },
+  error: { label: 'Error', variant: 'destructive' },
+} as const
+
+/**
+ * Empty state messages for projects
+ */
+export const EMPTY_STATES = {
+  NO_PROJECTS: {
+    title: 'No projects yet',
+    description: 'Create your first project to get started with document automation',
+    action: 'Create Your First Project',
+    icon: '📁',
+  },
+  NO_SEARCH_RESULTS: {
+    title: 'No projects found',
+    description: 'Try adjusting your search or filters',
+    action: 'Clear Search',
+    icon: '🔍',
+  },
+  NO_FILES: {
+    title: 'No files uploaded',
+    description: 'Upload documents to get started',
+    action: 'Upload Files',
+    icon: '📤',
+  },
+} as const
+
+/**
+ * Project workflow steps for progress tracking
+ */
+export const WORKFLOW_STEPS = [
+  { key: 'upload', label: 'Upload', icon: '📤' },
+  { key: 'extract', label: 'Extract', icon: '🤖' },
+  { key: 'validate', label: 'Validate', icon: '✅' },
+  { key: 'generate', label: 'Generate', icon: '📄' },
+] as const
+
+/**
+ * File type icons mapping
+ */
+export const FILE_TYPE_ICONS: Record<string, string> = {
+  'application/pdf': '📄',
+  'application/vnd.ms-excel': '📊',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '📊',
+  'application/msword': '📝',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
+  default: '📎',
+} as const
+
+/**
+ * Project routes (updated for project-centric navigation)
+ */
+export const PROJECT_ROUTES = {
+  dashboard: '/dashboard',
+  projects: '/dashboard/projects',
+  project: (id: string) => `/dashboard/projects/${id}`,
+  createProject: '/dashboard/projects/new',
+} as const

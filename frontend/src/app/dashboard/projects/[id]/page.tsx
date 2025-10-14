@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ProjectHeader } from '@/components/projects/ProjectHeader'
+import { FileUploader } from '@/components/upload/FileUploader'
+import { FileList } from '@/components/upload/FileList'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Spinner } from '@/components/ui/spinner'
@@ -14,9 +16,19 @@ export default function ProjectDetailPage() {
   const router = useRouter()
   const projectId = params.id as string
   
-  const { loadSubmission, currentSubmission } = useSubmission()
+  const { 
+    loadSubmission, 
+    currentSubmission, 
+    uploadFiles, 
+    extractData,
+    isUploading,
+    isExtracting,
+  } = useSubmission()
+  
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [files, setFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState<Record<number, number>>({})
 
   useEffect(() => {
     const load = async () => {
@@ -36,6 +48,48 @@ export default function ProjectDetailPage() {
     }
   }, [projectId, loadSubmission])
 
+  // Handle file selection
+  const handleFilesSelected = (newFiles: File[]) => {
+    setFiles([...files, ...newFiles])
+  }
+
+  // Handle file removal
+  const handleRemoveFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index))
+  }
+
+  // Handle submit
+  const handleSubmit = async () => {
+    if (files.length === 0) return
+    
+    try {
+      setError(null)
+      
+      // Upload files
+      await uploadFiles(projectId, files, (progress) => {
+        // Set progress for all files
+        const progressMap: Record<number, number> = {}
+        files.forEach((_, index) => {
+          progressMap[index] = progress
+        })
+        setUploadProgress(progressMap)
+      })
+      
+      // Start extraction
+      await extractData(projectId)
+      
+      // Reload project
+      await loadSubmission(projectId)
+      
+      // Clear files
+      setFiles([])
+      setUploadProgress({})
+      
+    } catch (err: any) {
+      setError(err?.message || 'Failed to process files')
+    }
+  }
+
   // Loading state
   if (loading) {
     return (
@@ -49,14 +103,12 @@ export default function ProjectDetailPage() {
   }
 
   // Error state
-  if (error || !currentSubmission) {
+  if (error && !currentSubmission) {
     return (
       <div className="container max-w-7xl py-8">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {error || 'Project not found'}
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
         <Button className="mt-4" onClick={() => router.push('/dashboard')}>
           Back to Projects
@@ -65,90 +117,180 @@ export default function ProjectDetailPage() {
     )
   }
 
+  if (!currentSubmission) {
+    return (
+      <div className="container max-w-7xl py-8">
+        <Alert variant="destructive">
+          <AlertTitle>Not Found</AlertTitle>
+          <AlertDescription>Project not found</AlertDescription>
+        </Alert>
+        <Button className="mt-4" onClick={() => router.push('/dashboard')}>
+          Back to Projects
+        </Button>
+      </div>
+    )
+  }
+
+  const canUpload = ['draft', 'uploaded', 'error'].includes(currentSubmission.status)
+  const isProcessing = ['extracting', 'validating', 'generating'].includes(currentSubmission.status)
+
   return (
     <div className="container max-w-7xl py-8">
       {/* Project Header */}
       <ProjectHeader project={currentSubmission} />
 
-      {/* Main Content - will be added in subsequent commits */}
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Processing Alert */}
+      {isProcessing && (
+        <Alert className="mb-6">
+          <Spinner size="sm" className="mr-2" />
+          <AlertTitle>Processing</AlertTitle>
+          <AlertDescription>
+            Your project is being processed. This may take a few minutes...
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Main Content */}
       <div className="space-y-6">
-        {/* Status-based content rendering */}
-        {currentSubmission.status === 'draft' && (
+        {/* File Upload Section */}
+        {canUpload && (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Documents</CardTitle>
+                <CardDescription>
+                  Add all documents for this client's submission
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* File Uploader */}
+                <FileUploader
+                  onFilesSelected={handleFilesSelected}
+                  disabled={isUploading || isExtracting}
+                />
+                
+                {/* Tips */}
+                <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
+                  <p className="text-sm font-medium mb-2">💡 Tip: Upload all documents at once</p>
+                  <p className="text-sm text-muted-foreground">
+                    Our AI works best when it can analyze all documents together. Include ACORD forms, 
+                    schedules, loss runs, and any other relevant documents.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* File List */}
+            {files.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Selected Files ({files.length})</CardTitle>
+                      <CardDescription>
+                        Review your files before submitting
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('file-input')?.click()}
+                      disabled={isUploading || isExtracting}
+                    >
+                      Add More Files
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                <FileList
+  files={files}
+  onRemove={handleRemoveFile}
+  uploadProgress={uploadProgress}
+  disabled={isUploading || isExtracting}
+/>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Submit Button */}
+            {files.length > 0 && (
+              <div className="flex justify-end">
+                <Button
+                  size="lg"
+                  onClick={handleSubmit}
+                  disabled={files.length === 0 || isUploading || isExtracting}
+                >
+                 {isUploading
+  ? 'Uploading...'
+  : isExtracting
+  ? 'Extracting Data...'
+  : `Submit ${files.length} File${files.length !== 1 ? 's' : ''}`}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Processing State */}
+        {isProcessing && (
           <Card>
             <CardHeader>
-              <CardTitle>Get Started</CardTitle>
+              <CardTitle>Processing Your Documents</CardTitle>
               <CardDescription>
-                Upload documents to begin processing this project
+                Please wait while we extract and validate your data
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Alert>
-                <AlertDescription>
-                  File upload will be integrated in the next commit (COMMIT 64)
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Spinner size="sm" />
+                  <span className="text-sm text-muted-foreground">
+                    This usually takes 1-3 minutes depending on the number of documents
+                  </span>
+                </div>
+                <Alert>
+                  <AlertDescription>
+                    Progress tracking will be enhanced in the next commit
+                  </AlertDescription>
+                </Alert>
+              </div>
             </CardContent>
           </Card>
         )}
 
-        {currentSubmission.status === 'uploaded' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Processing</CardTitle>
-              <CardDescription>
-                Files uploaded, ready for extraction
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Alert>
-                <AlertDescription>
-                  Extraction will start automatically or can be triggered manually
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        )}
-
-        {['extracting', 'validating', 'generating'].includes(currentSubmission.status) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Processing</CardTitle>
-              <CardDescription>
-                Your project is being processed
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Alert>
-                <AlertDescription>
-                  Progress tracking will be added in COMMIT 65
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        )}
-
+        {/* Extracted/Validated State */}
         {['extracted', 'validated'].includes(currentSubmission.status) && (
           <Card>
             <CardHeader>
-              <CardTitle>Review Data</CardTitle>
+              <CardTitle>Data Extracted</CardTitle>
               <CardDescription>
-                Review and edit extracted data
+                Review and validate the extracted data
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Alert>
                 <AlertDescription>
-                  Data review interface will be integrated from existing review page
+                  Data review interface will be integrated soon. 
+                  For now, use the temporary navigation below.
                 </AlertDescription>
               </Alert>
             </CardContent>
           </Card>
         )}
 
+        {/* Completed State */}
         {currentSubmission.status === 'completed' && (
           <Card>
             <CardHeader>
-              <CardTitle>Completed</CardTitle>
+              <CardTitle>Project Completed</CardTitle>
               <CardDescription>
                 Your forms are ready to download
               </CardDescription>
@@ -156,60 +298,41 @@ export default function ProjectDetailPage() {
             <CardContent>
               <Alert>
                 <AlertDescription>
-                  Results view will be added in COMMIT 66
+                  Results view will be added in COMMIT 66. 
+                  For now, use the temporary navigation below.
                 </AlertDescription>
               </Alert>
             </CardContent>
           </Card>
         )}
 
-        {currentSubmission.status === 'error' && (
+        {/* Temporary Navigation (for transition) */}
+        {!canUpload && !isProcessing && (
           <Card>
             <CardHeader>
-              <CardTitle>Error</CardTitle>
+              <CardTitle>Continue With</CardTitle>
               <CardDescription>
-                Something went wrong
+                Complete workflow pages (temporary)
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Alert variant="destructive">
-                <AlertDescription>
-                  An error occurred during processing. Please try again or contact support.
-                </AlertDescription>
-              </Alert>
+            <CardContent className="flex gap-3">
+              {['extracted', 'validated'].includes(currentSubmission.status) && (
+                <Button 
+                  onClick={() => router.push(`/dashboard/review?id=${projectId}`)}
+                >
+                  Review Data →
+                </Button>
+              )}
+              {currentSubmission.status === 'completed' && (
+                <Button 
+                  onClick={() => router.push(`/dashboard/download?id=${projectId}`)}
+                >
+                  Download Forms →
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}
-
-        {/* Temporary navigation */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Temporary Navigation</CardTitle>
-            <CardDescription>
-              While we're building the unified view, you can still use the old pages
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => router.push(`/dashboard/upload?id=${projectId}`)}
-            >
-              Upload (Old)
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push(`/dashboard/review?id=${projectId}`)}
-            >
-              Review (Old)
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push(`/dashboard/download?id=${projectId}`)}
-            >
-              Download (Old)
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

@@ -14,15 +14,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useSubmission } from '@/hooks/useSubmission'
-
+import { toast } from 'sonner'
 interface CreateProjectDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 export function CreateProjectDialog({
   open,
   onOpenChange,
+  onSuccess
 }: CreateProjectDialogProps) {
   const router = useRouter()
   const { createSubmission } = useSubmission()
@@ -48,19 +50,24 @@ export function CreateProjectDialog({
       setError('')
       
       // Create submission with client name
-      const submissionId = await createSubmission({
-        client_name: clientName.trim(),
-      })
+      const clientNameTrimmed = clientName.trim()
+    const submissionId = await createSubmission({
+      client_name: clientNameTrimmed,
+    })
       
       if (submissionId) {
         // Close dialog
         onOpenChange(false)
-        
-        // Navigate to project page
-        router.push(`/dashboard/projects/${submissionId}`)
-        
+
         // Reset form
         setClientName('')
+
+        // Show success message
+      toast.success(`Project "${clientNameTrimmed}" created successfully!`)
+      onSuccess?.()
+        // Navigate back to projects list
+        router.push('/dashboard')
+
       } else {
         setError('Failed to create project')
       }

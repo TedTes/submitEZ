@@ -301,6 +301,7 @@ class Submission:
         return {
             'id': self.id,
             'status': self.status,
+            'client_name': self.client_name,
             'applicant_name': self.applicant.business_name if self.applicant else None,
             'total_locations': self.get_total_locations(),
             'total_losses': self.get_total_losses(),

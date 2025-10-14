@@ -6,11 +6,11 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog'
 import { cn } from '@/lib/utils'
-
+import { useSubmission } from '@/hooks/useSubmission'
 export function AppHeader() {
   const pathname = usePathname()
   const [showCreateDialog, setShowCreateDialog] = useState(false)
-
+  const { loadRecentSubmissions } = useSubmission()
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -53,6 +53,9 @@ export function AppHeader() {
       <CreateProjectDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
+        onSuccess={() => {
+          loadRecentSubmissions() 
+        }}
       />
     </>
   )

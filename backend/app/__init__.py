@@ -79,22 +79,25 @@ def _initialize_extensions(app: Flask):
     CORS(app, 
          origins=app.config['CORS_ORIGINS'],
          supports_credentials=True,
-         allow_headers=['Content-Type', 'Authorization'],
+         expose_headers=['Content-Type', 'X-Request-ID'],
+         allow_headers=['Content-Type', 'Authorization', 'X-Request-ID',
+             'X-Request-Time',
+             'Accept',
+             'Origin',
+             'X-Requested-With'],
          methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
     
-    # Additional extensions will be added here in future commits
-    # Example: db.init_app(app), migrate.init_app(app), etc.
 
 
 def _register_blueprints(app: Flask):
     """Register Flask blueprints for routes."""
     
     # Import blueprints here to avoid circular imports
-    # Will be implemented in future commits
+    from app.api.routes.health_routes import health_bp
+    from app.api.routes.submission_routes import submission_bp
     
-    # Example:
-    # from app.api.routes.submission_routes import submission_bp
-    # app.register_blueprint(submission_bp, url_prefix='/api/submissions')
+    app.register_blueprint(health_bp)
+    app.register_blueprint(submission_bp)
     
     # Health check route (inline for now)
     @app.route('/health')

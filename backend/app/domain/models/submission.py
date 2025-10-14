@@ -107,6 +107,7 @@ class Submission:
         data = {
             'id': self.id,
             'status': self.status,
+            'client_name': self.client_name,
             'applicant': self.applicant.to_dict() if self.applicant else None,
             'locations': [loc.to_dict() for loc in self.locations],
             'coverage': self.coverage.to_dict() if self.coverage else None,

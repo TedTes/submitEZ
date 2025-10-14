@@ -91,7 +91,7 @@ class SubmissionAPI {
       }>
     >(API_ENDPOINTS.SUBMISSIONS, data)
 
-    return response.data.data!
+    return response.data as any
   }
 
   /**

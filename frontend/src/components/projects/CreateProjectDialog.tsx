@@ -65,6 +65,7 @@ export function CreateProjectDialog({
         setError('Failed to create project')
       }
     } catch (err: any) {
+      console.error('Create project error:', err)
       setError(err?.message || 'Failed to create project')
     } finally {
       setIsCreating(false)

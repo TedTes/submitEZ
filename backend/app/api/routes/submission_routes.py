@@ -94,7 +94,7 @@ def get_submission(submission_id: str):
 
 @submission_bp.route('', methods=['GET'])
 @submission_bp.route('/', methods=['GET'])
-@validate_query_params(['status', 'limit', 'offset'])
+@validate_query_params(['status', 'limit', 'offset', 'sort_by', 'sort_order', 'search'])
 @validate_pagination(max_limit=100, default_limit=50)
 def list_submissions():
     """
@@ -102,24 +102,35 @@ def list_submissions():
     
     Query parameters:
         - status: Filter by status
-        - limit: Number of results (max 100)
-        - offset: Offset for pagination
+        - limit: Number of results (default: 50, max: 100)
+        - offset: Offset for pagination (default: 0)
+        - sort_by: Sort field (created_at, updated_at, status)
+        - sort_order: Sort order (asc, desc)
+        - search: Search by client name or applicant name
     
     Returns:
-        200: List of submissions
+        200: List of submissions with pagination metadata
     """
     try:
         status = request.args.get('status')
         limit = request.args.get('limit', 50, type=int)
+        offset = request.args.get('offset', 0, type=int)
         
         service = get_submission_service()
         submissions = service.list_submissions(status=status, limit=limit)
         
+        # Convert to summary format
+        items = [s.get_summary() for s in submissions]
+        
+        # Return in expected paginated format
         return jsonify({
-            'submissions': [s.get_summary() for s in submissions],
-            'total': len(submissions),
-            'limit': limit,
-            'status_filter': status
+            'data': {
+                'items': items,
+                'total': len(items),
+                'limit': limit,
+                'offset': offset,
+                'has_more': len(items) == limit
+            }
         }), 200
         
     except Exception as e:

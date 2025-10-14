@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSubmission } from '@/hooks/useSubmission'
 import { ProcessingProgress } from '@/components/projects/ProcessingProgress'
+import { ProjectResults } from '@/components/projects/ProjectResults'
 
 export default function ProjectDetailPage() {
   const params = useParams()
@@ -267,54 +268,18 @@ export default function ProjectDetailPage() {
             </CardContent>
           </Card>
         )}
-
-        {/* Completed State */}
-        {currentSubmission.status === 'completed' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Completed</CardTitle>
-              <CardDescription>
-                Your forms are ready to download
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Alert>
-                <AlertDescription>
-                  Results view will be added in COMMIT 66. 
-                  For now, use the temporary navigation below.
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Temporary Navigation (for transition) */}
-        {!canUpload && !isProcessing && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Continue With</CardTitle>
-              <CardDescription>
-                Complete workflow pages (temporary)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex gap-3">
-              {['extracted', 'validated'].includes(currentSubmission.status) && (
-                <Button 
-                  onClick={() => router.push(`/dashboard/review?id=${projectId}`)}
-                >
-                  Review Data →
-                </Button>
-              )}
-              {currentSubmission.status === 'completed' && (
-                <Button 
-                  onClick={() => router.push(`/dashboard/download?id=${projectId}`)}
-                >
-                  Download Forms →
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
+    
+{/* Completed State */}
+{currentSubmission.status === 'completed' && (
+  <ProjectResults 
+    project={currentSubmission}
+    onUpdate={(updated) => {
+      // Reload the submission after update
+      loadSubmission(projectId)
+    }}
+  />
+)}
+ 
       </div>
     </div>
   )

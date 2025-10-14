@@ -29,6 +29,8 @@ export default function DashboardPage() {
     )
   })
 
+  const hasProjects = recentProjects.length > 0
+
   return (
     <div className="container max-w-7xl py-8">
       {/* Header */}
@@ -39,13 +41,16 @@ export default function DashboardPage() {
             Manage your client submission projects
           </p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          New Project
-        </Button>
+        {/* Only show button when projects exist */}
+        {hasProjects && (
+          <Button onClick={() => setShowCreateDialog(true)}>
+            New Project
+          </Button>
+        )}
       </div>
 
       {/* Search (if projects exist) */}
-      {recentProjects.length > 0 && (
+      {hasProjects && (
         <div className="mb-6">
           <Input
             placeholder="Search projects by client name or ID..."

@@ -45,6 +45,7 @@ def create_submission():
         
         service = get_submission_service()
         submission = service.create_submission(
+            client_name=data.get('client_name'),
             broker_name=data.get('broker_name'),
             broker_email=data.get('broker_email'),
             carrier_name=data.get('carrier_name'),

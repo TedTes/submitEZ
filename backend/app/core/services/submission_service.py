@@ -54,6 +54,7 @@ class SubmissionService:
     
     def create_submission(
         self,
+        client_name: Optional[str] = None,
         broker_name: Optional[str] = None,
         broker_email: Optional[str] = None,
         carrier_name: Optional[str] = None,
@@ -63,6 +64,7 @@ class SubmissionService:
         Create a new submission.
         
         Args:
+            client_name: Client/project name  # ← ADD THIS LINE
             broker_name: Broker/agent name
             broker_email: Broker email
             carrier_name: Target carrier name
@@ -77,6 +79,7 @@ class SubmissionService:
             # Create submission entity
             submission = Submission(
                 status='draft',
+                client_name=client_name,
                 broker_name=broker_name,
                 broker_email=broker_email,
                 carrier_name=carrier_name,
@@ -371,7 +374,7 @@ class SubmissionService:
             
             update_data = {}
             
-            if extracted_data.get('applicant'):
+            if not submission.client_name and  extracted_data.get('applicant'):
                 update_data['applicant'] = Applicant.from_dict(extracted_data['applicant'])
             
             if extracted_data.get('locations'):

@@ -20,7 +20,7 @@ import type {
  * Submission workflow state
  */
 interface SubmissionState {
-  // Current submission
+  // Current Project
   currentSubmission: Submission | null
   currentSubmissionId: string | null
 
@@ -44,7 +44,7 @@ interface SubmissionState {
   // Errors
   error: string | null
 
-  // Recent submissions
+  // Recent projects
   recentSubmissions: SubmissionSummary[]
 }
 
@@ -52,7 +52,7 @@ interface SubmissionState {
  * Submission workflow actions
  */
 interface SubmissionActions {
-  // Submission management
+  // Project management
   setCurrentSubmission: (submission: Submission | null) => void
   loadSubmission: (id: string) => Promise<Submission | null>
   createSubmission: (metadata?: SubmissionCreateRequest) => Promise<string | null>
@@ -79,7 +79,7 @@ interface SubmissionActions {
     }
   ) => Promise<Submission | null>
 
-  // Recent submissions
+  // Recent projects
   loadRecentSubmissions: () => Promise<void>
   addToRecentSubmissions: (submission: Submission) => void
 
@@ -123,7 +123,7 @@ export const useSubmission = create<SubmissionStore>()(
     (set, get) => ({
       ...initialState,
 
-      // Set current submission
+      // Set current project
       setCurrentSubmission: (submission) => {
         set({
           currentSubmission: submission,
@@ -135,7 +135,7 @@ export const useSubmission = create<SubmissionStore>()(
         }
       },
 
-      // Load submission by ID
+      // Load project by ID
       loadSubmission: async (id) => {
         try {
           set({ error: null })

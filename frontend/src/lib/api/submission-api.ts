@@ -1,5 +1,5 @@
 /**
- * Submission API client
+ * Project API client
  * All API methods for submission workflow operations
  */
 
@@ -261,7 +261,7 @@ class SubmissionAPI {
   }
 
   /**
-   * Get submission summary
+   * Get project summary
    */
   async getSubmissionSummary(submissionId: string): Promise<SubmissionSummary> {
     const response = await apiClient.get<ApiResponse<SubmissionSummary>>(
@@ -272,7 +272,7 @@ class SubmissionAPI {
   }
 
   /**
-   * Get submission statistics
+   * Get project statistics
    */
   async getStatistics(): Promise<StatisticsResponse> {
     const response = await apiClient.get<ApiResponse<StatisticsResponse>>(

@@ -149,7 +149,7 @@ export const useSubmission = create<SubmissionStore>()(
         }
       },
 
-      // Create new submission
+      // Create new project
       createSubmission: async (metadata) => {
         try {
           set({ error: null })
@@ -163,7 +163,7 @@ export const useSubmission = create<SubmissionStore>()(
         }
       },
 
-      // Update submission
+      // Update project
       updateSubmission: async (id, data) => {
         try {
           set({ error: null })
@@ -176,13 +176,13 @@ export const useSubmission = create<SubmissionStore>()(
         }
       },
 
-      // Delete submission
+      // Delete project
       deleteSubmission: async (id) => {
         try {
           set({ error: null })
           await submissionAPI.deleteSubmission(id)
 
-          // Remove from recent submissions
+          // Remove from recent projects
           const recentSubmissions = get().recentSubmissions.filter(
             (s) => s.id !== id
           )
@@ -439,7 +439,7 @@ export const useSubmission = create<SubmissionStore>()(
  * Selector hooks for specific state slices
  */
 
-// Current submission selectors
+// Current project selectors
 export const useCurrentSubmission = () =>
   useSubmission((state) => state.currentSubmission)
 
@@ -466,7 +466,7 @@ export const useGenerationResult = () =>
 // Error selector
 export const useSubmissionError = () => useSubmission((state) => state.error)
 
-// Recent submissions selector
+// Recent projects selector
 export const useRecentSubmissions = () =>
   useSubmission((state) => state.recentSubmissions)
 

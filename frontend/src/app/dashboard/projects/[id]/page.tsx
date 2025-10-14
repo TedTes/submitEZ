@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Spinner } from '@/components/ui/spinner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSubmission } from '@/hooks/useSubmission'
+import { ProcessingProgress } from '@/components/projects/ProcessingProgress'
 
 export default function ProjectDetailPage() {
   const params = useParams()
@@ -241,30 +242,11 @@ export default function ProjectDetailPage() {
 
         {/* Processing State */}
         {isProcessing && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Processing Your Documents</CardTitle>
-              <CardDescription>
-                Please wait while we extract and validate your data
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Spinner size="sm" />
-                  <span className="text-sm text-muted-foreground">
-                    This usually takes 1-3 minutes depending on the number of documents
-                  </span>
-                </div>
-                <Alert>
-                  <AlertDescription>
-                    Progress tracking will be enhanced in the next commit
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+  <ProcessingProgress 
+    currentStatus={currentSubmission.status}
+    fileCount={currentSubmission.uploaded_files?.length || 0}
+  />
+)}
 
         {/* Extracted/Validated State */}
         {['extracted', 'validated'].includes(currentSubmission.status) && (

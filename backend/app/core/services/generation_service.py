@@ -69,7 +69,7 @@ class GenerationService:
                     file_info = self.generate_acord_form(
                         data=data,
                         form_type=form_type,
-                        submission_id=submission.id
+                        submission=submission
                     )
                     generated_files.append(file_info)
                 except Exception as e:
@@ -85,7 +85,7 @@ class GenerationService:
                     file_info = self.generate_carrier_form(
                         data=data,
                         carrier_name=carrier_name,
-                        submission_id=submission.id
+                        submission: Submission
                     )
                     generated_files.append(file_info)
                 except Exception as e:
@@ -131,7 +131,7 @@ class GenerationService:
         self,
         data: Dict[str, Any],
         form_type: str,
-        submission_id: str
+        submission: Submission
     ) -> Dict[str, Any]:
         """
         Generate ACORD form.
@@ -151,14 +151,17 @@ class GenerationService:
             generator = get_acord_generator(form_type)
             
             # Generate filename
-            filename = f"ACORD_{form_type}_{submission_id[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filename = f"ACORD_{form_type}_{submission.id[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             local_path = str(self.output_dir / filename)
             
             # Generate PDF
             pdf_path = generator.generate(data, local_path)
             
             # Upload to storage
-            storage_path = f"submissions/{submission_id}/generated/{filename}"
+            user_id = submission.user_id or 'default-user'
+            project_name = submission.client_name or submission.id
+            safe_project = project_name.lower().replace(' ', '-')[:50]
+            storage_path = f"{user_id}/projects/{safe_project}/files/{unique_filename}"
             
             with open(pdf_path, 'rb') as f:
                 upload_result = self.storage.upload_file(
@@ -166,7 +169,7 @@ class GenerationService:
                     file_path=storage_path,
                     content_type='application/pdf',
                     metadata={
-                        'submission_id': submission_id,
+                        'submission_id': submission.id,
                         'form_type': f'ACORD {form_type}',
                         'generated_at': datetime.utcnow().isoformat()
                     }
@@ -197,7 +200,8 @@ class GenerationService:
         self,
         data: Dict[str, Any],
         carrier_name: str,
-        submission_id: str
+        submission: Submission
+        
     ) -> Dict[str, Any]:
         """
         Generate carrier-specific form.
@@ -218,14 +222,17 @@ class GenerationService:
             
             # Generate filename
             safe_carrier = carrier_name.replace(' ', '_')
-            filename = f"{safe_carrier}_Application_{submission_id[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filename = f"{safe_carrier}_Application_{submission.id[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             local_path = str(self.output_dir / filename)
             
             # Generate PDF
             pdf_path = generator.generate(data, local_path)
             
             # Upload to storage
-            storage_path = f"submissions/{submission_id}/generated/{filename}"
+            user_id = submission.user_id or 'default-user'
+            project_name = submission.client_name or submission.id
+            safe_project = project_name.lower().replace(' ', '-')[:50]
+            storage_path = f"{user_id}/projects/{safe_project}/files/{unique_filename}"
             
             with open(pdf_path, 'rb') as f:
                 upload_result = self.storage.upload_file(
@@ -233,7 +240,7 @@ class GenerationService:
                     file_path=storage_path,
                     content_type='application/pdf',
                     metadata={
-                        'submission_id': submission_id,
+                        'submission_id': submission.id,
                         'form_type': f'{carrier_name} Application',
                         'generated_at': datetime.utcnow().isoformat()
                     }
@@ -262,8 +269,8 @@ class GenerationService:
     
     def generate_summary_report(
         self,
-        submission: Submission,
-        submission_id: str
+        submission: Submission
+      
     ) -> Dict[str, Any]:
         """
         Generate summary report PDF.
@@ -282,7 +289,7 @@ class GenerationService:
             from reportlab.pdfgen import canvas as pdf_canvas
             
             # Generate filename
-            filename = f"Summary_Report_{submission_id[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filename = f"Summary_Report_{submission.id[:8]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             local_path = str(self.output_dir / filename)
             
             # Create PDF
@@ -325,7 +332,10 @@ class GenerationService:
             c.save()
             
             # Upload to storage
-            storage_path = f"submissions/{submission_id}/generated/{filename}"
+            user_id = submission.user_id or 'default-user'
+            project_name = submission.client_name or submission.id
+            safe_project = project_name.lower().replace(' ', '-')[:50]
+            storage_path = f"{user_id}/projects/{safe_project}/files/{unique_filename}"
             
             with open(local_path, 'rb') as f:
                 upload_result = self.storage.upload_file(
@@ -333,7 +343,7 @@ class GenerationService:
                     file_path=storage_path,
                     content_type='application/pdf',
                     metadata={
-                        'submission_id': submission_id,
+                        'submission_id': submission.id,
                         'form_type': 'Summary Report',
                         'generated_at': datetime.utcnow().isoformat()
                     }
@@ -430,12 +440,12 @@ class GenerationService:
             True if successful
         """
         try:
-            files = self.get_generated_files(submission_id)
+            files = self.get_generated_files(submission.id)
             file_paths = [f['path'] for f in files]
             
             if file_paths:
                 self.storage.batch_delete(file_paths)
-                logger.info(f"Deleted {len(file_paths)} generated files for {submission_id}")
+                logger.info(f"Deleted {len(file_paths)} generated files for {submission.id}")
             
             return True
             

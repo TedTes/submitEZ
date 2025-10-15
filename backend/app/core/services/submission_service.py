@@ -265,7 +265,10 @@ class SubmissionService:
                     file.save(str(local_path))
                     
                     # Upload to storage
-                    storage_path = f"submissions/{submission_id}/uploaded/{unique_filename}"
+                    user_id = submission.user_id or 'default-user'
+                    project_name = submission.client_name or submission.id
+                    safe_project = project_name.lower().replace(' ', '-')[:50]
+                    storage_path = f"{user_id}/projects/{safe_project}/files/{unique_filename}"
                     
                     with open(local_path, 'rb') as f:
                         upload_result = self.storage.upload_file(

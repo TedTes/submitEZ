@@ -49,7 +49,7 @@ class Submission:
     
     # Submission Identification
     id: str = field(default_factory=lambda: str(uuid4()))
-    
+    user_id: str = 'default-user'
     # Workflow Status
     status: str = 'draft'  # draft, uploaded, extracting, extracted, validating, validated, generating, completed, error
     

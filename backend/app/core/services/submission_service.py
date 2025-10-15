@@ -14,6 +14,7 @@ from app.core.services import (
     get_validation_service,
     get_generation_service
 )
+from app.utils import convert_to_json_serializable
 from app.utils.logger import get_logger
 from app.utils.file_utils import (
     validate_file_upload,
@@ -392,11 +393,11 @@ class SubmissionService:
                 update_data['loss_history'] = [
                     LossHistory.from_dict(loss) for loss in extracted_data['loss_history']
                 ]
-            
+            extraction_result_clean = convert_to_json_serializable(extraction_result)
             # Save extraction metadata
             self.repository.set_extraction_metadata(
                 submission_id,
-                extraction_result,
+                extraction_result_clean,
                 extraction_result.get('overall_confidence')
             )
             

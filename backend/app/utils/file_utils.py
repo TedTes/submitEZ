@@ -6,10 +6,12 @@ import os
 import mimetypes
 import hashlib
 from pathlib import Path
-from typing import Optional, Tuple, Set
+from typing import Optional, Tuple, Set,Any
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
-
+import json
+from datetime import date, datetime
+from decimal import Decimal
 
 # Allowed file extensions and MIME types
 ALLOWED_EXTENSIONS = {'pdf', 'xlsx', 'xls', 'docx', 'doc'}
@@ -309,3 +311,21 @@ def get_file_info(file_path: str) -> dict:
         'is_file': path.is_file(),
         'exists': path.exists(),
     }
+
+def convert_to_json_serializable(obj: Any) -> Any:
+    """
+    Recursively convert non-JSON-serializable objects to JSON-compatible types.
+    Handles: Decimal, date, datetime
+    """
+    if isinstance(obj, Decimal):
+        return float(obj)
+    elif isinstance(obj, (date, datetime)):
+        return obj.isoformat()  # Convert to ISO 8601 string
+    elif isinstance(obj, dict):
+        return {key: convert_to_json_serializable(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_to_json_serializable(item) for item in obj]
+    elif isinstance(obj, tuple):
+        return tuple(convert_to_json_serializable(item) for item in obj)
+    else:
+        return obj

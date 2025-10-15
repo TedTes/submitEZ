@@ -26,7 +26,8 @@ from .file_utils import (
     delete_file_safe,
     get_file_info,
     ALLOWED_EXTENSIONS,
-    MIME_TYPE_MAP
+    MIME_TYPE_MAP,
+    convert_to_json_serializable
 )
 
 from .validation_utils import (
@@ -88,5 +89,6 @@ __all__ = [
     'is_valid_url',
     'validate_required_fields',
     'sanitize_string',
-    'normalize_whitespace'
+    'normalize_whitespace',
+    'convert_to_json_serializable'
 ]

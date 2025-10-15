@@ -85,7 +85,7 @@ class GenerationService:
                     file_info = self.generate_carrier_form(
                         data=data,
                         carrier_name=carrier_name,
-                        submission: Submission
+                        submission=submission
                     )
                     generated_files.append(file_info)
                 except Exception as e:

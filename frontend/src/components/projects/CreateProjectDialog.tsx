@@ -64,9 +64,8 @@ export function CreateProjectDialog({
 
         // Show success message
       toast.success(`Project "${clientNameTrimmed}" created successfully!`)
-      onSuccess?.()
-        // Navigate back to projects list
-        router.push('/dashboard')
+
+        onSuccess?.()
 
       } else {
         setError('Failed to create project')

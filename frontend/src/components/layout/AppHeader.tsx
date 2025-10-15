@@ -6,11 +6,14 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog'
 import { cn } from '@/lib/utils'
-import { useSubmission } from '@/hooks/useSubmission'
+
 export function AppHeader() {
   const pathname = usePathname()
   const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const { loadRecentSubmissions } = useSubmission()
+
+
+  const showNewProjectButton = pathname === '/dashboard' || pathname.startsWith('/dashboard/projects')
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -26,25 +29,15 @@ export function AppHeader() {
           </Link>
 
           {/* Simple Navigation */}
-          <nav className="flex items-center space-x-6 ml-8">
-            <Link
-              href="/dashboard"
-              className={cn(
-                'text-sm font-medium transition-colors hover:text-primary',
-                pathname === '/dashboard' || pathname.startsWith('/dashboard/projects')
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'
-              )}
-            >
-              Projects
-            </Link>
-          </nav>
 
-          {/* Actions */}
+
+          {/* Actions - Only show New Project button when appropriate */}
           <div className="ml-auto flex items-center space-x-4">
-            <Button onClick={() => setShowCreateDialog(true)}>
-              New Project
-            </Button>
+            {showNewProjectButton && (
+              <Button onClick={() => setShowCreateDialog(true)}>
+                New Project
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -53,9 +46,6 @@ export function AppHeader() {
       <CreateProjectDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
-        onSuccess={() => {
-          loadRecentSubmissions() 
-        }}
       />
     </>
   )

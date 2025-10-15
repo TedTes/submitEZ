@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { usePathname } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { ProjectEmptyState } from '@/components/projects/ProjectEmptyState'
@@ -10,7 +9,7 @@ import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog'
 import { useSubmission, useRecentSubmissions } from '@/hooks/useSubmission'
 
 export default function DashboardPage() {
-  const pathname = usePathname()
+
   const { loadRecentSubmissions } = useSubmission()
   const recentProjects = useRecentSubmissions()
   
@@ -19,7 +18,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadRecentSubmissions()
-  }, [loadRecentSubmissions,pathname])
+  }, [loadRecentSubmissions])
 
   // Filter projects by search
   const filteredProjects = recentProjects.filter((project) => {
@@ -44,11 +43,6 @@ export default function DashboardPage() {
           </p>
         </div>
         {/* Only show button when projects exist */}
-        {hasProjects && (
-          <Button onClick={() => setShowCreateDialog(true)}>
-            New Project
-          </Button>
-        )}
       </div>
 
       {/* Search (if projects exist) */}

@@ -2,17 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Upload, File, Trash2, Download, CheckCircle2, Clock, Plus } from 'lucide-react'
+import { Upload, File, Trash2, Download, CheckCircle2, Plus, X, FileText, Table, File as FileIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { useSubmission } from '@/hooks/useSubmission'
 import { ProcessingProgress } from '@/components/projects/ProcessingProgress'
 import { ProjectResults } from '@/components/projects/ProjectResults'
 import { formatFileSize, formatDateTime } from '@/lib/utils/format'
-import { PROJECT_STATUS } from '@/lib/constants'
 
 export default function ProjectDetailPage() {
   const params = useParams()
@@ -29,14 +27,12 @@ export default function ProjectDetailPage() {
     error: submissionError,
   } = useSubmission()
   
-  // Local state
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState<Record<number, number>>({})
   const [isDragging, setIsDragging] = useState(false)
 
-  // Load project on mount
   useEffect(() => {
     const load = async () => {
       try {
@@ -55,12 +51,18 @@ export default function ProjectDetailPage() {
     }
   }, [projectId, loadSubmission])
 
-  // File handling
-  const getFileIcon = (contentType?: string, filename?: string) => {
-    if (contentType?.includes('pdf') || filename?.endsWith('.pdf')) return '📄'
-    if (contentType?.includes('sheet') || filename?.match(/\.(xlsx?|xls)$/)) return '📊'
-    if (contentType?.includes('word') || filename?.match(/\.(docx?|doc)$/)) return '📝'
-    return '📎'
+  const getFileIcon = (filename: string, contentType?: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase()
+    if (contentType?.includes('pdf') || ext === 'pdf') {
+      return <FileText className="w-5 h-5 text-red-500" />
+    }
+    if (contentType?.includes('sheet') || ext === 'xlsx' || ext === 'xls') {
+      return <Table className="w-5 h-5 text-green-600" />
+    }
+    if (contentType?.includes('word') || ext === 'docx' || ext === 'doc') {
+      return <FileIcon className="w-5 h-5 text-blue-600" />
+    }
+    return <FileIcon className="w-5 h-5 text-gray-500" />
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +102,6 @@ export default function ProjectDetailPage() {
     try {
       setError(null)
       
-      // Upload files
       await uploadFiles(projectId, selectedFiles, (progress) => {
         const progressMap: Record<number, number> = {}
         selectedFiles.forEach((_, index) => {
@@ -109,10 +110,7 @@ export default function ProjectDetailPage() {
         setUploadProgress(progressMap)
       })
       
-      // Reload project to show uploaded files
       await loadSubmission(projectId)
-      
-      // Clear selection
       setSelectedFiles([])
       setUploadProgress({})
       
@@ -126,13 +124,8 @@ export default function ProjectDetailPage() {
     
     try {
       setError(null)
-      
-      // Start extraction
       await extractData(projectId)
-      
-      // Reload to show updated status
       await loadSubmission(projectId)
-      
     } catch (err: any) {
       setError(err?.message || 'Failed to start processing')
     }
@@ -140,12 +133,9 @@ export default function ProjectDetailPage() {
 
   const handleDeleteFile = async (filename: string) => {
     if (!confirm(`Are you sure you want to delete ${filename}?`)) return
-    
-    // TODO: Implement file deletion API endpoint
     alert('File deletion not yet implemented in backend')
   }
 
-  // Loading state
   if (loading) {
     return (
       <div className="container max-w-7xl py-8 flex items-center justify-center min-h-[50vh]">
@@ -157,7 +147,6 @@ export default function ProjectDetailPage() {
     )
   }
 
-  // Error state (no submission found)
   if (error && !currentSubmission) {
     return (
       <div className="container max-w-7xl py-8">
@@ -186,13 +175,24 @@ export default function ProjectDetailPage() {
     )
   }
 
-  const statusConfig = PROJECT_STATUS[currentSubmission.status] || PROJECT_STATUS.draft
   const clientName = currentSubmission.client_name || currentSubmission.applicant?.business_name || 'Untitled Project'
   const uploadedFiles = currentSubmission.uploaded_files || []
   const hasUploadedFiles = uploadedFiles.length > 0
   const canUpload = ['draft', 'uploaded', 'error'].includes(currentSubmission.status)
   const isProcessing = ['extracting', 'validating', 'generating'].includes(currentSubmission.status)
   const isCompleted = currentSubmission.status === 'completed'
+  const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0)
+  const overallProgress = Object.keys(uploadProgress).length > 0
+    ? Object.values(uploadProgress).reduce((sum, val) => sum + val, 0) / selectedFiles.length
+    : 0
+
+  const getUploadStatus = (index: number) => {
+    const progress = uploadProgress[index]
+    if (progress === undefined) return 'pending'
+    if (progress === 100) return 'completed'
+    if (progress > 0) return 'uploading'
+    return 'pending'
+  }
 
   return (
     <div className="container max-w-7xl py-8">
@@ -228,7 +228,7 @@ export default function ProjectDetailPage() {
       {isCompleted && (
         <ProjectResults 
           project={currentSubmission}
-          onUpdate={async (updated) => {
+          onUpdate={async () => {
             await loadSubmission(projectId)
           }}
         />
@@ -273,71 +273,126 @@ export default function ProjectDetailPage() {
           </CardHeader>
 
           <CardContent>
-            {/* Selected Files Preview - Show when files are selected */}
+            {/* Selected Files Preview */}
             {selectedFiles.length > 0 && (
-              <div className="mb-6 space-y-2">
-                <h3 className="text-sm font-medium mb-2">
-                  Selected Files ({selectedFiles.length})
-                </h3>
-                {selectedFiles.map((file, index) => {
-                  const progress = uploadProgress[index]
-                  const isFileUploading = progress !== undefined && progress < 100
-
-                  return (
-                    <div
-                      key={`${file.name}-${index}`}
-                      className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
-                    >
-                      <span className="text-2xl">
-                        {getFileIcon(file.type, file.name)}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{file.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {formatFileSize(file.size)}
+              <div className="mb-6">
+                {/* Summary Header */}
+                <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                        <Upload className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected
                         </p>
-                        {isFileUploading && (
-                          <div className="mt-2">
-                            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-600 transition-all duration-300"
-                                style={{ width: `${progress}%` }}
-                              />
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                              Uploading... {progress}%
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Total size: {formatFileSize(totalSize)}
+                        </p>
+                      </div>
+                    </div>
+                    {isUploading && (
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-blue-600">
+                          Uploading... {Math.round(overallProgress)}%
+                        </p>
+                        <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-1">
+                          <div
+                            className="h-full bg-blue-600 transition-all duration-300"
+                            style={{ width: `${overallProgress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* File List */}
+                <div className="space-y-2 mb-6 max-h-[400px] overflow-y-auto">
+                  {selectedFiles.map((file, index) => {
+                    const status = getUploadStatus(index)
+                    const progress = uploadProgress[index] || 0
+
+                    return (
+                      <div
+                        key={`${file.name}-${index}`}
+                        className={`group flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                          status === 'completed'
+                            ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
+                            : status === 'uploading'
+                            ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex-shrink-0">
+                          {getFileIcon(file.name, file.type)}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                              {file.name}
                             </p>
+                            {status === 'completed' && (
+                              <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            )}
                           </div>
+                          <p className="text-sm text-gray-500">
+                            {formatFileSize(file.size)}
+                          </p>
+
+                          {status === 'uploading' && (
+                            <div className="mt-2">
+                              <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-600 transition-all duration-300"
+                                  style={{ width: `${progress}%` }}
+                                />
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">{progress}%</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {!isUploading && (
+                          <button
+                            onClick={() => removeSelectedFile(index)}
+                            className="flex-shrink-0 p-2 text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        )}
+
+                        {status === 'uploading' && (
+                          <div className="flex-shrink-0 animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
                         )}
                       </div>
-                      <button
-                        onClick={() => removeSelectedFile(index)}
-                        disabled={isUploading}
-                        className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )
-                })}
-                <div className="flex gap-3 pt-4">
+                    )
+                  })}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-3">
                   <Button
                     onClick={handleUpload}
                     disabled={isUploading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="flex-1"
+                    size="lg"
                   >
                     {isUploading ? (
                       <>
                         <Spinner size="sm" className="mr-2" />
-                        Uploading...
+                        Uploading {Math.round(overallProgress)}%
                       </>
                     ) : (
                       <>
-                        Upload {selectedFiles.length} File
-                        {selectedFiles.length !== 1 ? 's' : ''}
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload {selectedFiles.length} File{selectedFiles.length !== 1 ? 's' : ''}
                       </>
                     )}
                   </Button>
+
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -345,15 +400,16 @@ export default function ProjectDetailPage() {
                       setUploadProgress({})
                     }}
                     disabled={isUploading}
-                    className="px-6 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    size="lg"
                   >
+                    <Trash2 className="w-4 h-4 mr-2" />
                     Clear All
                   </Button>
                 </div>
               </div>
             )}
 
-            {/* Uploaded Files List - Show if files exist and no files selected */}
+            {/* Uploaded Files List */}
             {hasUploadedFiles && selectedFiles.length === 0 && (
               <div className="space-y-3">
                 {uploadedFiles.map((file: any, index: number) => (
@@ -362,14 +418,12 @@ export default function ProjectDetailPage() {
                     className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-all group"
                   >
                     <span className="text-3xl">
-                      {getFileIcon(file.content_type, file.filename)}
+                      {getFileIcon(file.filename, file.content_type)}
                     </span>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium truncate">
-                          {file.original_filename}
-                        </p>
+                        <p className="font-medium truncate">{file.original_filename}</p>
                         <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
                       </div>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -385,7 +439,6 @@ export default function ProjectDetailPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                        title="Download"
                       >
                         <Download className="w-5 h-5" />
                       </a>
@@ -403,7 +456,7 @@ export default function ProjectDetailPage() {
               </div>
             )}
 
-            {/* Drop Zone - Only show if no files uploaded and no files selected */}
+            {/* Drop Zone */}
             {!hasUploadedFiles && selectedFiles.length === 0 && (
               <div
                 onDragOver={handleDragOver}

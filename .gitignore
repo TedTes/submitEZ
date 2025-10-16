@@ -49,11 +49,7 @@ temp/
 uploads/
 downloads/
 generated/
-*.pdf
-*.xlsx
-*.xls
-*.docx
-*.doc
+
 
 # Secrets
 secrets/
